@@ -47,7 +47,7 @@ public class Server {
 
     private boolean isStart = false;
     private static int succeedLogin = 0;
-    private static int failLogin =0;
+    private static int failLogin = 0;
 
     public static void main(String[] args) {
         new Server();
@@ -57,7 +57,6 @@ public class Server {
         frame = new JFrame("Server");
         jta_history = new JTextArea();
         jta_history.setEditable(false);
-        //   jtf_maxnum=new JTextField("30");
         jtf_port = new JTextField("8888");
         jtf_message = new JTextField();
         jtf_message.addActionListener(new ActionListener() {
@@ -184,8 +183,9 @@ public class Server {
         try {
             clients = new ArrayList<ClientThread>();
             userArrayList = new ArrayList<User>();
-            userArrayList.add(new User("hong","hongpass","127.0.0.1"));
-            userArrayList.add(new User("zhao","zhaopass","127.0.0.1"));
+            userArrayList.add(new User("hong", "hongpass", "127.0.0.1"));
+            userArrayList.add(new User("zhao", "zhaopass", "127.0.0.1"));
+            userArrayList.add(new User("huang","huangpass","127.0.0.1"));
             server = new ServerSocket(port);
             thread = new ServerThread(server);
             thread.start();
@@ -206,7 +206,7 @@ public class Server {
             if (thread != null)
                 thread.stop();
             for (int i = 0; i < clients.size(); i++) {
-                clients.get(i).getWriter().println("Close");
+                clients.get(i).getWriter().println("CLOSE");
                 clients.get(i).getWriter().flush();
                 clients.get(i).stop();
                 clients.get(i).socket.close();
@@ -269,24 +269,26 @@ public class Server {
                 writer = new PrintWriter(socket.getOutputStream());
 
                 String userinfo = reader.readLine();
+                System.out.println("ClientThread :" + userinfo);
                 StringTokenizer st = new StringTokenizer(userinfo, "@");
 
-                user = new User(st.nextToken(), st.nextToken());
+                //user = new User(st.nextToken(), st.nextToken());
+                user = new User(st.nextToken(),st.nextToken(),st.nextToken());
 
 //                writer.println(user.getUsername() + user.getIp() + "connect to server successfully");
 //                writer.flush();
 
                 if (clients.size() > 0) {
-                    String str = null;
+                    String str = "";
                     for (int i = 0; i < clients.size(); i++) {
-                        str = str + clients.get(i).getUser().getUsername() + "/"
+                        str = str + clients.get(i).getUser().getUsername() + "@"
                                 + clients.get(i).getUser().getIp() + "@";
                     }
                     writer.println("USERLIST@" + clients.size() + "@" + str);
                     writer.flush();
                 }
                 for (int i = 0; i < clients.size(); i++) {
-                    clients.get(i).getWriter().println("ADD@" + user.getUsername() + user.getIp());
+                    clients.get(i).getWriter().println("ADD@" + user.getUsername() +"@"+ user.getIp());
                     clients.get(i).getWriter().flush();
                 }
 
@@ -302,7 +304,7 @@ public class Server {
             while (true) {
                 try {
                     message = reader.readLine();
-                    if (message.equals("close")) {
+                    if (message.equals("CLOSE")) {
                         jta_history.append(this.getUser().getUsername() + this.getUser().getIp() + "take off!");
                         reader.close();
                         writer.close();
@@ -422,10 +424,10 @@ public class Server {
                         if (isLogin) {
                             writer.println("succeed");
                             writer.flush();
-                            succeedLogin ++;
+                            succeedLogin++;
 //                            writer.println("connect to server successfully");
 //                            writer.flush();
-                            System.out.println("succeedLogin "+succeedLogin);
+                            System.out.println("succeedLogin " + succeedLogin);
 
                             ClientThread client = new ClientThread(socket);
                             client.start();
@@ -442,7 +444,7 @@ public class Server {
                     } else if (userName.equals("register")) {
                         System.out.println("register ;" + str);
                         userArrayList.add(new User(stringTokenizer.nextToken(), stringTokenizer.nextToken(), stringTokenizer.nextToken()));
-                        for (User user:userArrayList){
+                        for (User user : userArrayList) {
                             System.out.println(user);
                         }
                     } else {
@@ -459,6 +461,8 @@ public class Server {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+
                 }
 
             }

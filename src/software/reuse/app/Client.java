@@ -50,11 +50,13 @@ public class Client {
     private BufferedReader br;
     private MessageThread mThread;
     private Map<String,User> onlineUser=new HashMap<String,User>();
+    private static int clientSucceedLogin = 0;
+    private static int clientFailLogin = 0;
 
     private boolean isConnected=false;
 
     public static void main(String [] args){
-        new Client("Defang");
+        new Client("hong");
     }
 
     public Client(String username){
@@ -128,7 +130,7 @@ public class Client {
 
                 try{
                     boolean flag = closeConnection();
-                    if(!isConnected){
+                    if(isConnected){
                         throw new Exception("Error happened when disconnect to server!\n");
                     }
                     jb_stop.setEnabled(false);
@@ -216,11 +218,14 @@ public class Client {
 
             System.out.println("connectServer : "+str);
             if(str.equals("succeed")){
+                sendMessage(name+"@"+pass+"@"+socket.getLocalAddress().toString());
                 mThread=new MessageThread(br,jta_history);
                 mThread.start();
                 isConnected=true;
+                ++clientSucceedLogin;
                 return true;
             }else {
+                ++clientFailLogin;
                 return false;
             }
 
@@ -302,8 +307,8 @@ public class Client {
             while (true){
                 try{
                     message=reader.readLine();
-                    System.out.println("message "+ message);
-                    StringTokenizer st=new StringTokenizer(message,"/@");
+                    System.out.println("MessageThread message :"+ message);
+                    StringTokenizer st=new StringTokenizer(message,"@");
                     String command=st.nextToken();
                     if(command.equals("ADD")){
                         String username=null;
@@ -313,6 +318,7 @@ public class Client {
                             User user=new User(username,userIp);
                             onlineUser.put(username,user);
                             listModel.addElement(username);
+                            System.out.println("username "+username);
                         }
                     }else if(command.equals("DELETE")){
                         String username=st.nextToken();
@@ -333,6 +339,7 @@ public class Client {
                             User user=new User(username,userIp);
                             onlineUser.put(username,user);
                             listModel.addElement(username);
+                            System.out.print("username ;"+username);
                         }
                     }
                     else{
