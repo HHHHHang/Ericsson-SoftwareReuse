@@ -28,6 +28,7 @@ public class Client {
     private JTextField jtf_hostIp;
     private JTextField jtf_port;
     private JTextField jtf_name;
+    private JTextField jtf_password;
     private JTextField jtf_message;
 
     private JButton jb_start;
@@ -64,6 +65,7 @@ public class Client {
         jtf_port=new JTextField("8888");
         jtf_hostIp=new JTextField("127.0.0.1");
         jtf_name=new JTextField(username);
+        jtf_password = new JTextField();
         jtf_message=new JTextField();
         jtf_message.addActionListener(new ActionListener() {
             @Override
@@ -93,10 +95,11 @@ public class Client {
                     }
                     String hostIp=jtf_hostIp.getText();
                     String username=jtf_name.getText();
+                    String pass = jtf_password.getText();
                     if(username.equals("")||hostIp.equals("")){
                         throw new Exception("Username and ip should not by empty!\n");
                     }
-                    boolean flag=connectServer(port,hostIp,username);
+                    boolean flag=connectServer(port,hostIp,username,pass);
                     if(flag==false){
                         throw new Exception("Connect to server failed!\n");
                     }
@@ -167,7 +170,7 @@ public class Client {
         centerSplit=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,leftPanel,rightPanel);
         centerSplit.setDividerLocation(100);
         northPanel=new JPanel();
-        northPanel.setLayout(new GridLayout(1,7));
+        northPanel.setLayout(new GridLayout(1,8));
         // northPanel.add(new JLabel("Maximum number"));
         //northPanel.add(jtf_maxnum);
         northPanel.add(new JLabel("Port"));
@@ -176,6 +179,8 @@ public class Client {
         northPanel.add(jtf_hostIp);
         northPanel.add(new JLabel("Name"));
         northPanel.add(jtf_name);
+        northPanel.add(new JLabel("PWD"));
+        northPanel.add(jtf_password);
         northPanel.add(jb_start);
         northPanel.add(jb_stop);
         northPanel.setBorder(new TitledBorder("Settings"));
@@ -201,16 +206,25 @@ public class Client {
         });
     }
 
-    public boolean connectServer(int port,String hostIp,String name){
+    public boolean connectServer(int port,String hostIp,String name,String pass){
         try{
             socket=new Socket(hostIp,port);
             br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw=new PrintWriter(socket.getOutputStream());
-            sendMessage(name+"@"+socket.getLocalAddress().toString());
-            mThread=new MessageThread(br,jta_history);
-            mThread.start();
-            isConnected=true;
-            return true;
+            sendMessage("login"+"@"+name+"@"+pass+"@"+socket.getLocalAddress().toString());
+            String str = br.readLine();
+
+            System.out.println("connectServer : "+str);
+            if(str.equals("succeed")){
+                mThread=new MessageThread(br,jta_history);
+                mThread.start();
+                isConnected=true;
+                return true;
+            }else {
+                return false;
+            }
+
+
         }catch (Exception e){
             jta_history.append("connect to server failed\n");
             isConnected=false;
@@ -288,6 +302,7 @@ public class Client {
             while (true){
                 try{
                     message=reader.readLine();
+                    System.out.println("message "+ message);
                     StringTokenizer st=new StringTokenizer(message,"/@");
                     String command=st.nextToken();
                     if(command.equals("ADD")){
