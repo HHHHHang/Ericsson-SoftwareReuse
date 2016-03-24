@@ -428,7 +428,8 @@ public class Server {
                             writer.println("succeed");
                             writer.flush();
                             succeedLogin++;
-                            logger.info("server : user = "+name+" login clientSucceedLogin!"+", succeedLogin = "+succeedLogin);
+                            logger.info("server : user = "+name+" login Successfully!"+", succeedLogin = "+succeedLogin);
+
 //                            writer.println("connect to server successfully");
 //                            writer.flush();
                             System.out.println("succeedLogin " + succeedLogin);
@@ -443,7 +444,6 @@ public class Server {
                             writer.println("fail");
                             writer.flush();
                             failLogin++;
-                            logger.error("server : user = " + name + " login failed!" + ", failLogin = " + failLogin);
                         }
 
                     } else if (userName.equals("register")) {
