@@ -1,5 +1,6 @@
 package software.reuse.app;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -20,17 +21,11 @@ import javax.swing.JTextField;
 public class Register extends JFrame {
     private Client client;
     private JButton jButton1;
-
-
     private JButton jButton2;
-
     private JLabel jLabel1;
-
     private JLabel jLabel2;
-
     private JLabel jLabel3;
     private JLabel jLabel4;
-
     private JPanel jPanel;
 
     private JTextField username;
@@ -40,11 +35,12 @@ public class Register extends JFrame {
     private JTextField port;
     private User user;
 
-    public Register(String name,Client client){
+    public Register(String name, Client client) {
         super(name);
         this.client = client;
         initComponents(); // initialize UI
     }
+
     public Register(String name) {
         super(name);
 
@@ -68,24 +64,34 @@ public class Register extends JFrame {
         jButton2 = new JButton();
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("user");
         this.setAlwaysOnTop(true);
         this.setResizable(false);
 
-        jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("用户注册"));
+        jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("User Register and Login  "));
 
-        jLabel1.setText("用户名");
-        jLabel2.setText("密 码");
-        jLabel3.setText("IP地址");
-        jLabel4.setText("PORT");
+        jLabel1.setText(" UserName  ");
+        jLabel2.setText(" Password  ");
+        jLabel3.setText("hostaddress");
+        jLabel4.setText("   Port  ");
 
-        jButton1.setText("注册");
-        jButton2.setText("重置");
+        jButton1.setText("Register");
+        jButton2.setText("Login");
 
         jButton1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Register.this.register(e);
             }
+        });
+
+        jButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                login(e);
+            }
+
+
         });
 
         username.setText("wang");
@@ -107,26 +113,52 @@ public class Register extends JFrame {
 
         this.getContentPane().add(jPanel);
 
-        this.setSize(250, 300);
+        this.setSize(270, 300);
+        int screen_width = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screen_height = Toolkit.getDefaultToolkit().getScreenSize().height;
+        this.setLocation((screen_width - this.getWidth()) / 3, (screen_height - this.getHeight()) / 3);
         this.setVisible(true);
     }
 
-    public User getUser(){
+    public User getUser() {
         return user;
     }
+
+    private void login(ActionEvent e) {
+        String username = this.username.getText();
+        String password = this.password.getText();
+        String hostAddress = this.hostAddress.getText();
+        String port = this.port.getText();
+
+        if (password != null || !"".equals(password)) {
+            user = new User(username, password, hostAddress);
+            Client2Server client2Server = new Client2Server(hostAddress, Integer.parseInt(port), username, password);
+            if (client2Server.clientLogin()) {
+                this.setVisible(false);
+                new Client("Client").startSendMessage(client2Server.getSocket(), username);
+            } else {
+                JOptionPane.showMessageDialog(this, "login fail", "Warning", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "some info is null", "Warning", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     private void register(ActionEvent event) {
         String username = this.username.getText();
         String password = this.password.getText();
         String hostAddress = this.hostAddress.getText();
         String port = this.port.getText();
-        if(password != null || !"".equals(password)){
-            user = new User(username,password,hostAddress);
-            Client2Server client2Server = new Client2Server(this,hostAddress,Integer.parseInt(port),username,password);
-            if(client2Server.clientRegister()){
-                this.setVisible(false);
-                new Client("Client");
+        if (password != null || !"".equals(password)) {
+            user = new User(username, password, hostAddress);
+            Client2Server client2Server = new Client2Server(this, hostAddress, Integer.parseInt(port), username, password);
+            if (client2Server.clientRegister()) {
+                //this.setVisible(false);
+                //new Client("Client");
+                JOptionPane.showMessageDialog(this, "register successfully,Please login !", "Warning", JOptionPane.INFORMATION_MESSAGE);
+
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "some info is null", "Warning", JOptionPane.INFORMATION_MESSAGE);
         }
 

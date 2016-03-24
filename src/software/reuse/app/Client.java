@@ -49,26 +49,26 @@ public class Client {
     private PrintWriter pw;
     private BufferedReader br;
     private MessageThread mThread;
-    private Map<String,User> onlineUser=new HashMap<String,User>();
+    private Map<String, User> onlineUser = new HashMap<String, User>();
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
 
-    private boolean isConnected=false;
+    private boolean isConnected = false;
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         new Client("hong");
     }
 
-    public Client(String username){
-        frame=new JFrame("Client");
-        jta_history=new JTextArea();
+    public Client(String username) {
+        frame = new JFrame("Client");
+        jta_history = new JTextArea();
         jta_history.setEditable(false);
         //   jtf_maxnum=new JTextField("30");
-        jtf_port=new JTextField("8888");
-        jtf_hostIp=new JTextField("127.0.0.1");
-        jtf_name=new JTextField(username);
+        jtf_port = new JTextField("8888");
+        jtf_hostIp = new JTextField("127.0.0.1");
+        jtf_name = new JTextField(username);
         jtf_password = new JTextField();
-        jtf_message=new JTextField();
+        jtf_message = new JTextField();
         jtf_message.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,78 +76,76 @@ public class Client {
             }
         });
 
-        jb_start=new JButton("Connect");
+        jb_start = new JButton("Connect");
         jb_start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(isConnected){
-                    JOptionPane.showMessageDialog(frame,"This client has connected to server already!","Warning",JOptionPane.WARNING_MESSAGE);
+                if (isConnected) {
+                    JOptionPane.showMessageDialog(frame, "This client has connected to server already!", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                // int maxnum;
                 int port;
-                try{
-                    try{
-                        port=Integer.parseInt(jtf_port.getText().trim());
-                    }catch (Exception e1){
+                try {
+                    try {
+                        port = Integer.parseInt(jtf_port.getText().trim());
+                    } catch (Exception e1) {
                         throw new Exception("Port must be integer!");
                     }
-                    if(port<=0){
+                    if (port <= 0) {
                         throw new Exception("Port must be integer!");
                     }
-                    String hostIp=jtf_hostIp.getText();
-                    String username=jtf_name.getText();
+                    String hostIp = jtf_hostIp.getText();
+                    String username = jtf_name.getText();
                     String pass = jtf_password.getText();
-                    if(username.equals("")||hostIp.equals("")){
+                    if (username.equals("") || hostIp.equals("")) {
                         throw new Exception("Username and ip should not by empty!\n");
                     }
-                    boolean flag=connectServer(port,hostIp,username,pass);
-                    if(flag==false){
+                    boolean flag = connectServer(port, hostIp, username, pass);
+                    if (flag == false) {
                         throw new Exception("Connect to server failed!\n");
                     }
                     frame.setTitle(username);
                     jta_history.append("Server has started\n");
-                    JOptionPane.showMessageDialog(frame,"Start server successfully!");
+                    JOptionPane.showMessageDialog(frame, "Start server successfully!");
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
                     jb_stop.setEnabled(true);
-                }catch (Exception e2){
-                    JOptionPane.showMessageDialog(frame,e2.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(frame, e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        jb_stop=new JButton("stop");
+        jb_stop = new JButton("stop");
         jb_stop.setEnabled(false);
         jb_stop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!isConnected){
+                if (!isConnected) {
                     JOptionPane.showMessageDialog(frame,
-                            "Client disconnect to server already!","Warning",JOptionPane.WARNING_MESSAGE);
+                            "Client disconnect to server already!", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
-                try{
+                try {
                     boolean flag = closeConnection();
-                    if(isConnected){
+                    if (isConnected) {
                         throw new Exception("Error happened when disconnect to server!\n");
                     }
                     jb_stop.setEnabled(false);
                     jb_start.setEnabled(true);
                     jtf_port.setEnabled(true);
                     jta_history.append("Disconnect to server successfully!\n");
-                    JOptionPane.showMessageDialog(frame,"Stop server successfully!\n");
-                }catch (Exception e3){
-                    JOptionPane.showMessageDialog(frame,"Error happens when disconnect to server!","Error",
+                    JOptionPane.showMessageDialog(frame, "Stop server successfully!\n");
+                } catch (Exception e3) {
+                    JOptionPane.showMessageDialog(frame, "Error happens when disconnect to server!", "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
 
-
-        jb_send=new JButton("send");
+        jb_send = new JButton("send");
         jb_send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,24 +153,24 @@ public class Client {
             }
         });
 
-        listModel=new DefaultListModel();
-        userList=new JList(listModel);
+        listModel = new DefaultListModel();
+        userList = new JList(listModel);
 
-        southPanel=new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.setBorder(new TitledBorder("Write message"));
-        southPanel.add(jtf_message,"Center");
-        southPanel.add(jb_send,"East");
+        southPanel.add(jtf_message, "Center");
+        southPanel.add(jb_send, "East");
 
-        leftPanel=new JScrollPane(userList);
+        leftPanel = new JScrollPane(userList);
         leftPanel.setBorder(new TitledBorder("online user"));
 
-        rightPanel=new JScrollPane(jta_history);
+        rightPanel = new JScrollPane(jta_history);
         rightPanel.setBorder(new TitledBorder("history message"));
 
-        centerSplit=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,leftPanel,rightPanel);
+        centerSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         centerSplit.setDividerLocation(100);
-        northPanel=new JPanel();
-        northPanel.setLayout(new GridLayout(1,8));
+        northPanel = new JPanel();
+        northPanel.setLayout(new GridLayout(1, 8));
         // northPanel.add(new JLabel("Maximum number"));
         //northPanel.add(jtf_maxnum);
         northPanel.add(new JLabel("Port"));
@@ -188,19 +186,19 @@ public class Client {
         northPanel.setBorder(new TitledBorder("Settings"));
 
         frame.setLayout(new BorderLayout());
-        frame.add(northPanel,"North");
-        frame.add(southPanel,"South");
-        frame.add(centerSplit,"Center");
+        frame.add(northPanel, "North");
+        frame.add(southPanel, "South");
+        frame.add(centerSplit, "Center");
 
-        frame.setSize(700,400);
-        int screen_width=Toolkit.getDefaultToolkit().getScreenSize().width;
-        int screen_height=Toolkit.getDefaultToolkit().getScreenSize().height;
-        frame.setLocation((screen_width-frame.getWidth())/2,(screen_height-frame.getHeight())/2);
+        frame.setSize(700, 400);
+        int screen_width = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screen_height = Toolkit.getDefaultToolkit().getScreenSize().height;
+        frame.setLocation((screen_width - frame.getWidth()) / 2, (screen_height - frame.getHeight()) / 2);
         frame.setVisible(true);
 
         frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e){
-                if(isConnected){
+            public void windowClosing(WindowEvent e) {
+                if (isConnected) {
                     closeConnection();
                 }
                 System.exit(0);
@@ -208,146 +206,163 @@ public class Client {
         });
     }
 
-    public boolean connectServer(int port,String hostIp,String name,String pass){
-        try{
-            socket=new Socket(hostIp,port);
-            br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            pw=new PrintWriter(socket.getOutputStream());
-            sendMessage("login"+"@"+name+"@"+pass+"@"+socket.getLocalAddress().toString());
+    public void startSendMessage(Socket socket, String username){
+        try {
+
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw = new PrintWriter(socket.getOutputStream());
+            mThread = new MessageThread(br, jta_history);
+            mThread.start();
+            isConnected = true;
+            frame.setTitle(username);
+            jta_history.append("Server has started\n");
+            JOptionPane.showMessageDialog(frame, "login successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean connectServer(int port, String hostIp, String name, String pass) {
+        try {
+            socket = new Socket(hostIp, port);
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw = new PrintWriter(socket.getOutputStream());
+            sendMessage("login" + "@" + name + "@" + pass + "@" + socket.getLocalAddress().toString());
             String str = br.readLine();
 
-            System.out.println("connectServer : "+str);
-            if(str.equals("succeed")){
-                sendMessage(name+"@"+pass+"@"+socket.getLocalAddress().toString());
-                mThread=new MessageThread(br,jta_history);
+            System.out.println("connectServer : " + str);
+            if (str.equals("succeed")) {
+                sendMessage(name + "@" + pass + "@" + socket.getLocalAddress().toString());
+                mThread = new MessageThread(br, jta_history);
                 mThread.start();
-                isConnected=true;
+                isConnected = true;
                 ++clientSucceedLogin;
+                System.out.println("clientSucceedLogin" + clientSucceedLogin);
                 return true;
-            }else {
+            } else {
                 ++clientFailLogin;
+                System.out.println("clientFailLogin" + clientFailLogin);
                 return false;
             }
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             jta_history.append("connect to server failed\n");
-            isConnected=false;
+            isConnected = false;
             return false;
         }
     }
 
-    public void sendMessage(String message){
+    public void sendMessage(String message) {
         pw.println(message);
         pw.flush();
     }
 
-    public void send(){
-        if(!isConnected){
-            JOptionPane.showMessageDialog(frame,"Can't send message for server doesn't be start!",
-                    "Error",JOptionPane.ERROR_MESSAGE);
+    public void send() {
+        if (!isConnected) {
+            JOptionPane.showMessageDialog(frame, "Can't send message for server doesn't be start!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String message=jtf_message.getText().trim();
-        if(message==null||message.equals("")){
-            JOptionPane.showMessageDialog(frame,"Message shouldn't be empty!",
-                    "Error",JOptionPane.ERROR_MESSAGE);
+        String message = jtf_message.getText().trim();
+        if (message == null || message.equals("")) {
+            JOptionPane.showMessageDialog(frame, "Message shouldn't be empty!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        sendMessage(frame.getTitle()+"@"+"ALL"+"@"+message);
+        sendMessage(frame.getTitle() + "@" + "ALL" + "@" + message);
         jtf_message.setText(null);
     }
 
 
-    public synchronized boolean closeConnection(){
-        try{
+    public synchronized boolean closeConnection() {
+        try {
             sendMessage("CLOSE");
             mThread.stop();
-            if(br!=null)
+            if (br != null)
                 br.close();
-            if(pw!=null)
+            if (pw != null)
                 pw.close();
-            if(socket!=null)
+            if (socket != null)
                 socket.close();
-            isConnected=false;
+            isConnected = false;
             return true;
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-            isConnected=true;
+            isConnected = true;
             return false;
         }
     }
 
 
-    public class MessageThread extends Thread{
+    public class MessageThread extends Thread {
         private BufferedReader reader;
         private JTextArea jta_message;
 
-        public MessageThread(BufferedReader reader,JTextArea jta_message){
-            this.reader=reader;
-            this.jta_message=jta_message;
+        public MessageThread(BufferedReader reader, JTextArea jta_message) {
+            this.reader = reader;
+            this.jta_message = jta_message;
         }
 
-        public synchronized void closeConn()throws Exception{
+        public synchronized void closeConn() throws Exception {
             listModel.removeAllElements();
-            if(reader!=null){
+            if (reader != null) {
                 reader.close();
             }
-            if(pw!=null){
+            if (pw != null) {
                 pw.close();
             }
-            if(socket!=null){
+            if (socket != null) {
                 socket.close();
             }
-            isConnected=false;
+            isConnected = false;
         }
 
-        public void run(){
-            String message=null;
-            while (true){
-                try{
-                    message=reader.readLine();
-                    System.out.println("MessageThread message :"+ message);
-                    StringTokenizer st=new StringTokenizer(message,"@");
-                    String command=st.nextToken();
-                    if(command.equals("ADD")){
-                        String username=null;
-                        String userIp=null;
-                        if((username=st.nextToken())!=null&&
-                                (userIp=st.nextToken())!=null){
-                            User user=new User(username,userIp);
-                            onlineUser.put(username,user);
+        public void run() {
+            String message = null;
+            while (true) {
+                try {
+                    message = reader.readLine();
+                    System.out.println("MessageThread message :" + message);
+                    StringTokenizer st = new StringTokenizer(message, "@");
+                    String command = st.nextToken();
+                    if (command.equals("ADD")) {
+                        String username = null;
+                        String userIp = null;
+                        if ((username = st.nextToken()) != null &&
+                                (userIp = st.nextToken()) != null) {
+                            User user = new User(username, userIp);
+                            onlineUser.put(username, user);
                             listModel.addElement(username);
-                            System.out.println("username "+username);
+                            System.out.println("username " + username);
                         }
-                    }else if(command.equals("DELETE")){
-                        String username=st.nextToken();
-                        User user=(User)onlineUser.get(username);
+                    } else if (command.equals("DELETE")) {
+                        String username = st.nextToken();
+                        User user = (User) onlineUser.get(username);
                         onlineUser.remove(user);
                         listModel.removeElement(username);
-                    }else if(command.equals("CLOSE")){
+                    } else if (command.equals("CLOSE")) {
                         jta_history.append("Server has been closed!\n");
                         closeConn();
                         return;
-                    }else if(command.equals("USERLIST")){
-                        int size=Integer.parseInt(st.nextToken());
-                        String username=null;
-                        String userIp=null;
-                        for(int i=0;i<size;i++){
-                            username=st.nextToken();
-                            userIp=st.nextToken();
-                            User user=new User(username,userIp);
-                            onlineUser.put(username,user);
+                    } else if (command.equals("USERLIST")) {
+                        int size = Integer.parseInt(st.nextToken());
+                        String username = null;
+                        String userIp = null;
+                        for (int i = 0; i < size; i++) {
+                            username = st.nextToken();
+                            userIp = st.nextToken();
+                            User user = new User(username, userIp);
+                            onlineUser.put(username, user);
                             listModel.addElement(username);
-                            System.out.print("username ;"+username);
+                            System.out.print("username ;" + username);
                         }
+                    } else {
+                        jta_message.append(message + "\n");
                     }
-                    else{
-                        jta_message.append(message+"\n");
-                    }
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
