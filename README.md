@@ -1,8 +1,8 @@
 # SoftwareReuse
 ###Team members
 
-+ ÕÔµÂ·¼[BelleZhao](https://github.com/BelleZhao/)
-+ ºéÇì [honqging](https://github.com/honqging)
-+ ÍõµÂ²ý[wdchang](https://github.com/wdchang)
-+ ÄßÙ©[nikan1995](https://github.com/nikan1995)
-+ »Æº½[HHHHHang](https://github.com/HHHHHang)
++ èµµå¾·èŠ³[BelleZhao](https://github.com/BelleZhao/)
++ æ´ªåº†[honqging](https://github.com/honqging)
++ çŽ‹å¾·æ˜Œ[wdchang](https://github.com/wdchang)
++ é»„èˆª[nikan1995](https://github.com/nikan1995)
++ å€ªä¾ƒ[HHHHHang](https://github.com/HHHHHang)
