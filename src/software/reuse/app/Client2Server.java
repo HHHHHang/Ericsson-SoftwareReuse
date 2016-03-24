@@ -1,5 +1,7 @@
 package software.reuse.app;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -20,6 +22,7 @@ public class Client2Server extends Thread {
     private BufferedReader br;
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
+    private static Logger logger = Logger.getLogger(Client2Server.class);
 
     //private ChatClient chatClient;
 
@@ -68,11 +71,13 @@ public class Client2Server extends Thread {
                 sendMessage(username + "@" + password + "@" + socket.getLocalAddress().toString());
 
                 ++clientSucceedLogin;
+                logger.error("client : user ="+username +" login successfully !"+" clientSucceedLogin = "+clientSucceedLogin);
                 System.out.println("clientSucceedLogin" + clientSucceedLogin);
                 return true;
             } else {
                 ++clientFailLogin;
                 System.out.println("clientFailLogin" + clientFailLogin);
+                logger.error("client : user ="+username +" login failed !"+" clientFailLogin = "+clientFailLogin);
                 return false;
             }
         } catch (Exception e) {

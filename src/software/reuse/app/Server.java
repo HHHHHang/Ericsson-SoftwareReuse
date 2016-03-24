@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Created by dell on 2016/3/22.
@@ -51,9 +50,22 @@ public class Server {
     private static int succeedLogin = 0;
     private static int failLogin = 0;
     private static Logger logger = Logger.getLogger(Server.class);
+    private static WriteIntoFile writeIntoFile = WriteIntoFile.getWriteIntoFile();
 
     public static void main(String[] args) {
         new Server();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+              writeIntoFile.writeFile("server_result","succeed",succeedLogin,"faile",failLogin);
+            }
+        };
+        java.util.Timer timer = new java.util.Timer();
+        long delay = 0;
+        long intevalPeriod = 60 * 1000;
+        // schedules the task to be run in an interval
+        timer.scheduleAtFixedRate(task, delay,
+                intevalPeriod);
     }
 
     public Server() {
@@ -188,7 +200,7 @@ public class Server {
             userArrayList = new ArrayList<User>();
             userArrayList.add(new User("hong", "hongpass", "127.0.0.1"));
             userArrayList.add(new User("zhao", "zhaopass", "127.0.0.1"));
-            userArrayList.add(new User("wang","wangpass","127.0.0.1"));
+            userArrayList.add(new User("wang", "wangpass", "127.0.0.1"));
             server = new ServerSocket(port);
             thread = new ServerThread(server);
             thread.start();
@@ -276,7 +288,7 @@ public class Server {
                 StringTokenizer st = new StringTokenizer(userinfo, "@");
 
                 //user = new User(st.nextToken(), st.nextToken());
-                user = new User(st.nextToken(),st.nextToken(),st.nextToken());
+                user = new User(st.nextToken(), st.nextToken(), st.nextToken());
 
 //                writer.println(user.getUsername() + user.getIp() + "connect to server successfully");
 //                writer.flush();
@@ -291,7 +303,7 @@ public class Server {
                     writer.flush();
                 }
                 for (int i = 0; i < clients.size(); i++) {
-                    clients.get(i).getWriter().println("ADD@" + user.getUsername() +"@"+ user.getIp());
+                    clients.get(i).getWriter().println("ADD@" + user.getUsername() + "@" + user.getIp());
                     clients.get(i).getWriter().flush();
                 }
 
@@ -428,7 +440,7 @@ public class Server {
                             writer.println("succeed");
                             writer.flush();
                             succeedLogin++;
-                            logger.info("server : user = "+name+" login Successfully!"+", succeedLogin = "+succeedLogin);
+                            logger.info("server : user = " + name + " login Successfully!" + ", succeedLogin = " + succeedLogin);
 
 //                            writer.println("connect to server successfully");
 //                            writer.flush();

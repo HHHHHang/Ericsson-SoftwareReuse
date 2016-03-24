@@ -56,17 +56,13 @@ public class Client {
     private static int clientFailLogin = 0;
 
     private boolean isConnected = false;
-    static Logger l = Logger.getLogger(Client.class);
-    private  static Logger logger1 = Logger.getLogger(Register.class);
 
     public static void main(String[] args) {
         new Client("hong");
-        l.error("error WWWWWWW");
 
     }
 
     public Client(String username) {
-
         frame = new JFrame("Client");
         jta_history = new JTextArea();
         jta_history.setEditable(false);
@@ -156,7 +152,6 @@ public class Client {
         jb_send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                logger1.info("send message");
                 send();
             }
         });
@@ -245,13 +240,13 @@ public class Client {
                 mThread.start();
                 isConnected = true;
                 ++clientSucceedLogin;
-                logger1.info("client : user = " + name + " login successful" + " clientSucceedLogin = " + clientSucceedLogin);
+
                 System.out.println("clientSucceedLogin" + clientSucceedLogin);
                 Logger.getLogger(Client.class).info("In Client,java");
                 return true;
             } else {
                 ++clientFailLogin;
-                logger1.info("client : user = " + name + " login failed" + " clientFailLogin = " + clientFailLogin);
+
                 System.out.println("clientFailLogin" + clientFailLogin);
                 return false;
             }
@@ -308,12 +303,10 @@ public class Client {
     public class MessageThread extends Thread {
         private BufferedReader reader;
         private JTextArea jta_message;
-
         public MessageThread(BufferedReader reader, JTextArea jta_message) {
             this.reader = reader;
             this.jta_message = jta_message;
         }
-
         public synchronized void closeConn() throws Exception {
             listModel.removeAllElements();
             if (reader != null) {
