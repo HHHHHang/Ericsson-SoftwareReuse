@@ -1,5 +1,7 @@
 package software.reuse.app;
 
+import org.apache.log4j.Logger;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,11 +36,13 @@ public class Register extends JFrame {
 
     private JTextField port;
     private User user;
+    private static Logger logger = Logger.getLogger(Register.class);
 
     public Register(String name, Client client) {
         super(name);
         this.client = client;
         initComponents(); // initialize UI
+
     }
 
     public Register(String name) {
@@ -173,22 +177,6 @@ public class Register extends JFrame {
         }*/
     }
 
-   /* public boolean connectServer(int port,String hostIp,String name){
-        try{
-            Socket socket=new Socket(hostIp,port);
-            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter pw=new PrintWriter(socket.getOutputStream());
-            sendMessage(name+"@"+socket.getLocalAddress().toString());
-            MessageThread mThread=new MessageThread(br,jta_history);
-            mThread.start();
-            isConnected=true;
-            return true;
-        }catch (Exception e){
-            jta_history.append("connect to server failed\n");
-            isConnected=false;
-            return false;
-        }
-    }*/
 
     public static void main(String[] args) {
         new Register("Register");

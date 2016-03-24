@@ -1,5 +1,7 @@
 package software.reuse.app;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -48,6 +50,7 @@ public class Server {
     private boolean isStart = false;
     private static int succeedLogin = 0;
     private static int failLogin = 0;
+    private static Logger logger = Logger.getLogger(Server.class);
 
     public static void main(String[] args) {
         new Server();
@@ -185,7 +188,7 @@ public class Server {
             userArrayList = new ArrayList<User>();
             userArrayList.add(new User("hong", "hongpass", "127.0.0.1"));
             userArrayList.add(new User("zhao", "zhaopass", "127.0.0.1"));
-            userArrayList.add(new User("huang","huangpass","127.0.0.1"));
+            userArrayList.add(new User("wang","wangpass","127.0.0.1"));
             server = new ServerSocket(port);
             thread = new ServerThread(server);
             thread.start();
@@ -425,6 +428,7 @@ public class Server {
                             writer.println("succeed");
                             writer.flush();
                             succeedLogin++;
+                            logger.info("server : user = "+name+" login clientSucceedLogin!"+", succeedLogin = "+succeedLogin);
 //                            writer.println("connect to server successfully");
 //                            writer.flush();
                             System.out.println("succeedLogin " + succeedLogin);
@@ -439,6 +443,7 @@ public class Server {
                             writer.println("fail");
                             writer.flush();
                             failLogin++;
+                            logger.error("server : user = " + name + " login failed!" + ", failLogin = " + failLogin);
                         }
 
                     } else if (userName.equals("register")) {

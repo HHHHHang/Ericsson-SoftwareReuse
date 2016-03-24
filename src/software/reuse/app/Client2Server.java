@@ -66,9 +66,7 @@ public class Client2Server extends Thread {
             System.out.println("connectServer : " + str);
             if (str.equals("succeed")) {
                 sendMessage(username + "@" + password + "@" + socket.getLocalAddress().toString());
-//                mThread = new Client.MessageThread(br, jta_history);
-//                mThread.start();
-//                isConnected = true;
+
                 ++clientSucceedLogin;
                 System.out.println("clientSucceedLogin" + clientSucceedLogin);
                 return true;
