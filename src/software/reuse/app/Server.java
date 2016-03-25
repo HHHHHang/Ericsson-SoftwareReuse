@@ -3,6 +3,7 @@ package software.reuse.app;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,13 +13,27 @@ import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.Timer;
 
 /**
  * Created by dell on 2016/3/22.
  */
 public class Server {
+	
+	//byhq
+    int count_total = 0;
+    static int count_single = 0;
+//    int single_info = 0;
+	static String writePath = "/Users/admin/Desktop/txt2.txt";
+	static String writePath2 = "/Users/admin/Desktop/";
+    private static String writeRecord = "nothingggg";
+    public String getWriteRecord(){
+    	return writeRecord;
+    }
 
     private JFrame frame;
     private JTextArea jta_history;
@@ -54,6 +69,9 @@ public class Server {
     }
 
     public Server() {
+//    	Save2File sf = new Save2File();
+//		String writePath = "/Users/admin/Desktop/txt2.txt";
+//    	sf.write2file(count, writePath);
         frame = new JFrame("Server");
         jta_history = new JTextArea();
         jta_history.setEditable(false);
@@ -229,6 +247,8 @@ public class Server {
         for (int i = 0; i < clients.size(); i++) {
             clients.get(i).getWriter().println("Server:" + message);
             clients.get(i).getWriter().flush();
+            
+            count_total++;
         }
     }
 
@@ -347,7 +367,17 @@ public class Server {
                 for (int i = 0; i < clients.size(); i++) {
                     clients.get(i).getWriter().println(message);
                     clients.get(i).getWriter().flush();
+                    count_total++;
+                    System.out.println(count_total);
                 }
+                count_single += count_total/clients.size();
+                
+                //Save2File sf = new Save2File();
+        		writeRecord = " Forwarded Message Number:" + Integer.toString(count_total);
+            	//sf.write2file(writeRecord, writePath);
+				//sf.write2fileontime(writeRecord, writePath); 
+				
+				timer2(clients.size(), count_single);
 
             }
         }
@@ -468,4 +498,70 @@ public class Server {
             }
         }
     }
+    
+    
+    
+  //byhq
+    public static void timer2(int client_num , int single_info)
+	{
+		String str = null;
+		Timer timer = new Timer();
+		timer.schedule(new MyTask(client_num, single_info), 10000, 10000);
+		while(true)
+		{	
+			try {
+				int ch = System.in.read();
+				if(ch-'c'==0){
+					timer.cancel();//使用这个方法退出任务
+				}
+			} catch (IOException e) {
+			// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+	}
+
+	static class MyTask extends java.util.TimerTask{
+//		int single_info;
+		int client_num;
+		MyTask(int cn, int si){
+//			single_info = si;
+			client_num = cn;
+		}
+
+
+		@Override
+		public void run() {
+			
+            Save2File sf = new Save2File();
+//			setTime(getTime() + writeRecord);
+			System.out.println(getTime() + writeRecord);
+			sf.write2fileontime(getTime() + writeRecord, writePath);
+			
+			//write to single info file
+			for(int i=0;i<client_num;i++){
+				String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
+				
+//				int i2 = i++;
+//				System.out.println(i2);
+				sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
+                
+            }
+
+		 }
+	}
+		
+	public static String getTime(){
+		Date date = new Date();
+		DateFormat df2 = DateFormat.getDateTimeInstance();//可以精确到时分秒
+		String a = df2.format(date);
+//		System.out.println(a);
+		return a;
+
+	}
+	
+//	public static void setTime(String time){
+//		data2write = time;
+//	}
+
 }
