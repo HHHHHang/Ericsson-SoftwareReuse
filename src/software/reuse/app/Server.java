@@ -557,14 +557,14 @@ public class Server {
 			sf.write2fileontime(getTime() + writeRecord, writePath);
 			
 			//write to single info file
-			for(int i=0;i<client_num;i++){
-				String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
+// 			for(int i=0;i<client_num;i++){
+// 				String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
 				
-//				int i2 = i++;
-//				System.out.println(i2);
-				sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
+// //				int i2 = i++;
+// //				System.out.println(i2);
+// 				sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
                 
-            }
+//             }
 
 		 }
 	}

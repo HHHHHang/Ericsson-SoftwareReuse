@@ -24,6 +24,11 @@ import java.util.StringTokenizer;
  * Created by dell on 2016/3/22.
  */
 public class Client {
+    //byhq
+    static String writePath = "/Users/admin/Desktop/";
+    private static int count_client = 0;
+
+
     private JFrame frame;
     private JTextArea jta_history;
     // private JTextField jtf_maxnum;
@@ -362,6 +367,17 @@ public class Client {
                         }
                     } else {
                         jta_message.append(message + "\n");
+
+                        //byhq
+                        //判断是不是系统自动发送的通知
+                        //若为自动通知，则忽略不算坐client收到的信息
+                        if(message.contains(":")){
+                            count_client++;
+                            String s_file_name[] = message.split(":");
+                            String file_name = s_file_name[0];
+                            System.out.println(file_name);
+                            timer2(file_name);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -371,4 +387,79 @@ public class Client {
             }
         }
     }
+
+    //byhq
+    public static void timer2(String file_name)
+    {
+//      System.out.println(file_name);
+//      String str = null;
+        Timer timer = new Timer();
+        timer.schedule(new MyTask(file_name), 2000, 2000);
+        while(true)
+        {   
+            try {
+                int ch = System.in.read();
+                if(ch-'c'==0){
+                    timer.cancel();//使用这个方法退出任务
+                }
+            } catch (IOException e) {
+            // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+    }
+
+    static class MyTask extends java.util.TimerTask{
+//      int single_info;
+        String file_name;
+        MyTask(String file_name22){
+//          single_info = si;
+            file_name = file_name22;
+        }
+
+
+        @Override
+        public void run() {
+            
+            Save2File sf = new Save2File();
+//          setTime(getTime() + writeRecord);
+            String file_single_content = getTime() + " " + file_name + " have received " 
+                    + count_client + " messages";
+            String file_path = writePath + file_name + ".txt";
+            
+            System.out.println(file_single_content);
+            System.out.println(file_path);
+
+            //将日志写入txt文件中去
+            sf.write2fileontime(file_single_content, file_path);
+            
+            //write to single info file
+//          for(int i=0;i<client_num;i++){
+//              String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
+//              
+////                int i2 = i++;
+////                System.out.println(i2);
+//              //将日志写入txt文件中去
+//              sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
+//                
+//            }
+
+         }
+    }
+        
+    public static String getTime(){
+        Date date = new Date();
+        DateFormat df2 = DateFormat.getDateTimeInstance();//可以精确到时分秒
+        String a = df2.format(date);
+//      System.out.println(a);
+        return a;
+
+    }
+    
+//  public static void setTime(String time){
+//      data2write = time;
+//  }
+
+
+    
 }
