@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.TimerTask;
 
 /**
  * Created by wangdechang on 2016/3/22.
@@ -23,6 +24,7 @@ public class Client2Server extends Thread {
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
     private static Logger logger = Logger.getLogger(Client2Server.class);
+    private static WriteIntoFile writeIntoFile = WriteIntoFile.getWriteIntoFile();
 
     //private ChatClient chatClient;
 
@@ -31,6 +33,21 @@ public class Client2Server extends Thread {
         this.port = port;
         this.username = username;
         this.password = password;
+        writeIntoFile();
+
+    }
+    private void writeIntoFile(){
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                writeIntoFile.writeFile(username,"succeed",clientSucceedLogin,"faile",clientFailLogin);
+            }
+        };
+        java.util.Timer timer = new java.util.Timer();
+        long delay = 0;
+        long intevalPeriod = 60 * 1000;
+        timer.scheduleAtFixedRate(task, delay,
+                intevalPeriod);
     }
 
     public Client2Server(Register client, String hostAddress, int port, String username, String password) {
@@ -43,6 +60,7 @@ public class Client2Server extends Thread {
         //连接服务器
         this.connect2Server();
     }
+
 
     // 连接服务器
     private void connect2Server() {
