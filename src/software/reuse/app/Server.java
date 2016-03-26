@@ -30,8 +30,8 @@ public class Server {
     int count_total = 0;
     static int count_single = 0;
 //    int single_info = 0;
-	static String writePath = "/Users/admin/Desktop/txt2.txt";
-	static String writePath2 = "/Users/admin/Desktop/";
+	static String writePath = "D:\\txt2.txt";
+	static String writePath2 = "D:\\";
     private static String writeRecord = "nothingggg";
     public String getWriteRecord(){
     	return writeRecord;
@@ -385,6 +385,7 @@ public class Server {
                     clients.get(i).getWriter().flush();
                     count_total++;
                     System.out.println(count_total);
+                    System.out.println("server message = "+message);
                 }
                 count_single += count_total/clients.size();
                 
@@ -487,6 +488,7 @@ public class Server {
                             writer.println("fail");
                             writer.flush();
                             failLogin++;
+                            logger.info("server : user = " + name + " login failed!" + ", failLogin = " + failLogin);
                         }
 
                     } else if (userName.equals("register")) {
@@ -525,18 +527,18 @@ public class Server {
 		String str = null;
 		Timer timer = new Timer();
 		timer.schedule(new MyTask(client_num, single_info), 10000, 10000);
-		while(true)
+	/*	while(true)
 		{	
 			try {
 				int ch = System.in.read();
 				if(ch-'c'==0){
-					timer.cancel();//使用这个方法�?出任�?
+					timer.cancel();
 				}
 			} catch (IOException e) {
 			// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
+			}*/
 	}
 
 	static class MyTask extends java.util.TimerTask{

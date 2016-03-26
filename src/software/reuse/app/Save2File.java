@@ -20,7 +20,7 @@ import software.reuse.app.Server.ClientThread;
 
 public class Save2File {
 	private static String data2write = "nothing";
-	private static String writePath = "/Users/admin/Desktop/txt2.txt";
+	private static String writePath = "D:\\txt2.txt";
 
 	
 	Save2File(){
@@ -28,8 +28,8 @@ public class Save2File {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String readPath = "/Users/admin/Desktop/txt1.txt";
-		String writePath = "/Users/admin/Desktop/txt2.txt";
+		String readPath = "txt1.txt";
+		String writePath = "txt2.txt";
 		String data = "zhende ky写出来?\nfksal\n";
 		
 		readfile(readPath);
