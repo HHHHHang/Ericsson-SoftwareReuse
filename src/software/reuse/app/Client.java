@@ -2,14 +2,17 @@ package software.reuse.app;
 
 import org.apache.log4j.Logger;
 
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,16 +22,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by dell on 2016/3/22.
  */
 public class Client {
-    //byhq
-    static String writePath = "/Users/admin/Desktop/";
-    private static int count_client = 0;
-
-
     private JFrame frame;
     private JTextArea jta_history;
     // private JTextField jtf_maxnum;
@@ -59,6 +59,7 @@ public class Client {
     private Map<String, User> onlineUser = new HashMap<String, User>();
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
+    private int sendmsgnum = 0;  //¿Í»§¶Ë·¢ËÍÏûÏ¢Êı
 
     private boolean isConnected = false;
 
@@ -78,7 +79,6 @@ public class Client {
         jtf_password = new JTextField();
         jtf_message = new JTextField();
         jtf_message.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
@@ -86,7 +86,6 @@ public class Client {
 
         jb_start = new JButton("Connect");
         jb_start.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (isConnected) {
                     JOptionPane.showMessageDialog(frame, "This client has connected to server already!", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -115,6 +114,8 @@ public class Client {
                     frame.setTitle(username);
                     jta_history.append("Server has started\n");
                     JOptionPane.showMessageDialog(frame, "Start server successfully!");
+                    Timer timerha = new Timer();                            //¶¨Ê±Æ÷
+                    timerha.scheduleAtFixedRate(new MyTaskha(),0,2000);
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
                     jb_stop.setEnabled(true);
@@ -127,7 +128,6 @@ public class Client {
         jb_stop = new JButton("stop");
         jb_stop.setEnabled(false);
         jb_stop.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isConnected) {
                     JOptionPane.showMessageDialog(frame,
@@ -155,7 +155,6 @@ public class Client {
 
         jb_send = new JButton("send");
         jb_send.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
@@ -281,9 +280,35 @@ public class Client {
             return;
         }
         sendMessage(frame.getTitle() + "@" + "ALL" + "@" + message);
+        sendmsgnum++;     //·¢ËÍÏûÏ¢Êı+1
         jtf_message.setText(null);
     }
-
+    
+    class MyTaskha extends TimerTask{     //¶¨Ê±ÈÎÎñ
+    	FileWriter fw = null;
+    	String fileadd = "c:\\"+jtf_name.getText().trim()+".txt";
+    	String tempsmn;
+    	public void run(){
+    		try{
+    				tempsmn = Integer.toString(sendmsgnum);
+    		    	fw = new FileWriter(fileadd,false);
+    		    	fw.write(jtf_name.getText().trim()+"ÒÑ·¢ËÍÏûÏ¢Êı£º"+tempsmn);
+    		//		textArea.append("°¡°¡°¡\r\n");
+    				if(isConnected ==  false){
+    					cancel();
+    				}
+    		    	}catch(Exception e){
+    		    		e.printStackTrace();
+    		    	}finally{
+    		    		if (fw != null)  
+    		                try {  
+    		                    fw.close();  
+    		                } catch (IOException e) {  
+    		                    e.printStackTrace();;  
+    		                }  
+    		    	}	
+    	}
+    }
 
     public synchronized boolean closeConnection() {
         try {
@@ -365,19 +390,12 @@ public class Client {
                             listModel.addElement(username);
                             System.out.print("username ;" + username);
                         }
-                    } else {
+                    }else if(command.equals("Redo login")){
+                    	jta_history.append("ÕıÔÚÖØĞÂµÇÂ¼\r\n");
+                    	sendMessage("relogin");
+                    	jta_history.append("ÖØĞÂµÇÂ¼³É¹¦\r\n");
+                    }else {
                         jta_message.append(message + "\n");
-
-                        //byhq
-                        //åˆ¤æ–­æ˜¯ä¸æ˜¯ç³»ç»Ÿè‡ªåŠ¨å‘é€çš„é€šçŸ¥
-                        //è‹¥ä¸ºè‡ªåŠ¨é€šçŸ¥ï¼Œåˆ™å¿½ç•¥ä¸ç®—åclientæ”¶åˆ°çš„ä¿¡æ¯
-                        if(message.contains(":")){
-                            count_client++;
-                            String s_file_name[] = message.split(":");
-                            String file_name = s_file_name[0];
-                            System.out.println(file_name);
-                            timer2(file_name);
-                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -387,79 +405,4 @@ public class Client {
             }
         }
     }
-
-    //byhq
-    public static void timer2(String file_name)
-    {
-//      System.out.println(file_name);
-//      String str = null;
-        Timer timer = new Timer();
-        timer.schedule(new MyTask(file_name), 2000, 2000);
-        while(true)
-        {   
-            try {
-                int ch = System.in.read();
-                if(ch-'c'==0){
-                    timer.cancel();//ä½¿ç”¨è¿™ä¸ªæ–¹æ³•é€€å‡ºä»»åŠ¡
-                }
-            } catch (IOException e) {
-            // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-    }
-
-    static class MyTask extends java.util.TimerTask{
-//      int single_info;
-        String file_name;
-        MyTask(String file_name22){
-//          single_info = si;
-            file_name = file_name22;
-        }
-
-
-        @Override
-        public void run() {
-            
-            Save2File sf = new Save2File();
-//          setTime(getTime() + writeRecord);
-            String file_single_content = getTime() + " " + file_name + " have received " 
-                    + count_client + " messages";
-            String file_path = writePath + file_name + ".txt";
-            
-            System.out.println(file_single_content);
-            System.out.println(file_path);
-
-            //å°†æ—¥å¿—å†™å…¥txtæ–‡ä»¶ä¸­å»
-            sf.write2fileontime(file_single_content, file_path);
-            
-            //write to single info file
-//          for(int i=0;i<client_num;i++){
-//              String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
-//              
-////                int i2 = i++;
-////                System.out.println(i2);
-//              //å°†æ—¥å¿—å†™å…¥txtæ–‡ä»¶ä¸­å»
-//              sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
-//                
-//            }
-
-         }
-    }
-        
-    public static String getTime(){
-        Date date = new Date();
-        DateFormat df2 = DateFormat.getDateTimeInstance();//å¯ä»¥ç²¾ç¡®åˆ°æ—¶åˆ†ç§’
-        String a = df2.format(date);
-//      System.out.println(a);
-        return a;
-
-    }
-    
-//  public static void setTime(String time){
-//      data2write = time;
-//  }
-
-
-    
 }

@@ -83,14 +83,12 @@ public class Register extends JFrame {
         jButton2.setText("Login");
 
         jButton1.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 Register.this.register(e);
             }
         });
 
         jButton2.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 login(e);
             }

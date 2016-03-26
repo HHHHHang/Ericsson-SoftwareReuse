@@ -15,7 +15,6 @@ import java.io.*;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import java.text.DateFormat;
 import java.util.*;
 import java.util.Timer;
@@ -30,8 +29,10 @@ public class Server {
     int count_total = 0;
     static int count_single = 0;
 //    int single_info = 0;
-	static String writePath = "/Users/admin/Desktop/txt2.txt";
-	static String writePath2 = "/Users/admin/Desktop/";
+//	static String writePath = "D:\\txt2.txt";
+//	static String writePath2 = "D:\\";
+    static String writePath = "C:\\txt2.txt";
+	static String writePath2 = "C:\\";
     private static String writeRecord = "nothingggg";
     public String getWriteRecord(){
     	return writeRecord;
@@ -41,6 +42,9 @@ public class Server {
     private JTextArea jta_history;
     // private JTextField jtf_maxnum;
     private JTextField jtf_port;
+    private JTextField jtf_msgpersec;
+    private JTextField jtf_msgperlogin;
+    
     private JTextField jtf_message;
 
     private JButton jb_start;
@@ -67,6 +71,8 @@ public class Server {
     private static int failLogin = 0;
     private static Logger logger = Logger.getLogger(Server.class);
     private static WriteIntoFile writeIntoFile = WriteIntoFile.getWriteIntoFile();
+    private int countmsgsec = 0;
+    private int countmsglogin = 0;
 
     public static void main(String[] args) {
         new Server();
@@ -92,9 +98,10 @@ public class Server {
         jta_history = new JTextArea();
         jta_history.setEditable(false);
         jtf_port = new JTextField("8888");
+        jtf_msgpersec = new JTextField("5");
+        jtf_msgperlogin = new JTextField("100");
         jtf_message = new JTextField();
         jtf_message.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
@@ -102,7 +109,6 @@ public class Server {
 
         jb_start = new JButton("start");
         jb_start.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (isStart) {
                     JOptionPane.showMessageDialog(frame, "Server has started!", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -119,12 +125,32 @@ public class Server {
                     if (port <= 0) {
                         throw new Exception("Port must be integer!");
                     }
+                    
+                    try {
+                    	countmsgsec = Integer.parseInt(jtf_msgpersec.getText());
+                    } catch (Exception e1) {
+                        throw new Exception("Msgpersec must be integer!");
+                    }
+                    if (countmsgsec <= 0) {
+                        throw new Exception("Msgpersec must be integer!");
+                    }
+                    
+                    try {
+                    	countmsglogin = Integer.parseInt(jtf_msgperlogin.getText());
+                    } catch (Exception e1) {
+                        throw new Exception("Msgperlogin must be integer!");
+                    }
+                    if (countmsglogin <= 0) {
+                        throw new Exception("Msgperlogin must be integer!");
+                    }
 
                     startServer(port);
                     jta_history.append("Server has started\n");
                     JOptionPane.showMessageDialog(frame, "Start server successfully!");
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
+                    jtf_msgpersec.setEnabled(false);
+                    jtf_msgperlogin.setEnabled(false);
                     jb_stop.setEnabled(true);
                 } catch (Exception e2) {
                     JOptionPane.showMessageDialog(frame, e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -135,7 +161,6 @@ public class Server {
         jb_stop = new JButton("stop");
         jb_stop.setEnabled(false);
         jb_stop.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isStart) {
                     JOptionPane.showMessageDialog(frame,
@@ -148,6 +173,8 @@ public class Server {
                     jb_stop.setEnabled(false);
                     jb_start.setEnabled(true);
                     jtf_port.setEnabled(true);
+                    jtf_msgpersec.setEnabled(true);
+                    jtf_msgperlogin.setEnabled(true);
                     jta_history.append("Stop server successfully!\n");
                     JOptionPane.showMessageDialog(frame, "Stop server successfully!\n");
                 } catch (Exception e3) {
@@ -160,7 +187,6 @@ public class Server {
 
         jb_send = new JButton("send");
         jb_send.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
@@ -188,6 +214,10 @@ public class Server {
         //northPanel.add(jtf_maxnum);
         northPanel.add(new JLabel("Port"));
         northPanel.add(jtf_port);
+        northPanel.add(new JLabel("Msg/Sec"));
+        northPanel.add(jtf_msgpersec);
+        northPanel.add(new JLabel("Msg/Login"));
+        northPanel.add(jtf_msgperlogin);
         northPanel.add(jb_start);
         northPanel.add(jb_stop);
         northPanel.setBorder(new TitledBorder("Settings"));
@@ -220,6 +250,7 @@ public class Server {
             userArrayList.add(new User("hong", "hongpass", "127.0.0.1"));
             userArrayList.add(new User("zhao", "zhaopass", "127.0.0.1"));
             userArrayList.add(new User("wang", "wangpass", "127.0.0.1"));
+            userArrayList.add(new User("ni", "nipass", "127.0.0.1"));
             server = new ServerSocket(port);
             thread = new ServerThread(server);
             thread.start();
@@ -297,6 +328,38 @@ public class Server {
         private BufferedReader reader;
         private PrintWriter writer;
         private User user;
+        int eachreceivedmsg = 0;    //对每个收到的消息
+        int eachignoredmsg = 0;   //对每个忽略的消息
+        int msgperlogin = 0;
+        Timer timer = new Timer();   //定时器
+        
+        class MyTask1 extends TimerTask{     //定时任务
+        	FileWriter fw = null;
+        	String fileadd = "c:\\server"+user.getUsername()+".txt";
+        	String tempeachreceivedmsg;
+        	String tempeachignoredmsg;
+        	public void run(){
+        		try{
+        				tempeachreceivedmsg = Integer.toString(eachreceivedmsg);
+        				tempeachignoredmsg = Integer.toString(eachignoredmsg);
+        		    	fw = new FileWriter(fileadd,false);
+        		    	fw.write("收到："+tempeachreceivedmsg+"\r\n"+"忽略："+tempeachignoredmsg);
+        		//		textArea.append("啊啊啊\r\n");
+        		/*		if(isConnected ==  false){
+        					cancel();
+        				}*/
+        		    	}catch(Exception e){
+        		    		e.printStackTrace();
+        		    	}finally{
+        		    		if (fw != null)  
+        		                try {  
+        		                    fw.close();  
+        		                } catch (IOException e) {  
+        		                    e.printStackTrace();;  
+        		                }  
+        		    	}	
+        	}
+        }
 
         public ClientThread(Socket socket) {
             try {
@@ -327,8 +390,7 @@ public class Server {
                     clients.get(i).getWriter().println("ADD@" + user.getUsername() + "@" + user.getIp());
                     clients.get(i).getWriter().flush();
                 }
-
-
+                timer.scheduleAtFixedRate(new MyTask1(),0,2000);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -337,14 +399,28 @@ public class Server {
 
         public void run() {
             String message = null;
+            long nowtime = 0;
+            ArrayList<Long> timelist = new ArrayList();
             while (true) {
                 try {
                     message = reader.readLine();
+                    eachreceivedmsg++;
+                    nowtime = System.currentTimeMillis();
+                    if(timelist.size()<countmsgsec+1){
+                   	 timelist.add(nowtime);
+                   }
+                   else{
+                   	timelist.remove(0);
+                   	timelist.add(nowtime);
+                   }
                     if (message.equals("CLOSE")) {
+                    	eachreceivedmsg--;
                         jta_history.append(this.getUser().getUsername() + this.getUser().getIp() + "take off!");
                         reader.close();
                         writer.close();
                         socket.close();
+                        timer.cancel();
+                        msgperlogin = 0;
 
                         for (int i = 0; i < clients.size(); i++) {
                             clients.get(i).getWriter().println("DELETE@" + user.getUsername());
@@ -361,8 +437,42 @@ public class Server {
                                 return;
                             }
                         }
-                    } else {
-                        dispatcherMessage(message);
+                    }
+                    else if(message.equals("relogin")){
+                    	eachreceivedmsg--;
+                    	msgperlogin = 0;
+                    	jta_history.append(user.getUsername()+"重新登录\r\n");
+                    }
+                    else {
+                    	if(msgperlogin<countmsglogin-1){
+                    		if(timelist.size()<countmsgsec+1){
+                        		msgperlogin++;
+                        		dispatcherMessage(message);// 转发消息  
+                        	}
+                        	else{
+                        		if((timelist.get(timelist.size()-1)-timelist.get(0))>10000){    //秒数
+                        			msgperlogin++;
+                        			dispatcherMessage(message);
+                        		}
+                        		else{
+                        			 eachignoredmsg++;
+                        			 for (int q = clients.size() - 1; q >= 0; q--) {  
+                        	                if(clients.get(q).getUser().getUsername()==user.getUsername()) {
+                        	                	clients.get(q).getWriter().println("你发的太快了休息会儿吧！");
+                        	                	clients.get(q).getWriter().flush();
+                        	                }
+                        	            }  
+                        		}
+                        	}
+                    	}     //如果每次登陆小于100
+                    	else{    //等于100
+                    		for (int q = clients.size() - 1; q >= 0; q--) {  
+            	                if(clients.get(q).getUser().getUsername()==user.getUsername()) {
+            	                	clients.get(q).getWriter().println("Redo login");
+            	                	clients.get(q).getWriter().flush();
+            	                }
+            	            } 
+                    	}
                     }
 
                 } catch (IOException e) {
@@ -379,12 +489,20 @@ public class Server {
             String content = st.nextToken();
             message = source + "said:" + content;
             jta_history.append(message + "\n");
+            for (int i = clients.size() - 1; i >= 0; i--) {  
+                if(clients.get(i).getUser().getUsername()==user.getUsername()) {
+              //  	clients.get(i).getWriter().println("我收到了"+user.getName()+"的信息");
+                	clients.get(i).getWriter().println("OK");
+                	clients.get(i).getWriter().flush();
+                }
+            } 
             if (owner.equals("ALL")) {     // send to all online users
                 for (int i = 0; i < clients.size(); i++) {
                     clients.get(i).getWriter().println(message);
                     clients.get(i).getWriter().flush();
                     count_total++;
                     System.out.println(count_total);
+                    System.out.println("server message = "+message);
                 }
                 count_single += count_total/clients.size();
                 
@@ -487,6 +605,7 @@ public class Server {
                             writer.println("fail");
                             writer.flush();
                             failLogin++;
+                            logger.info("server : user = " + name + " login failed!" + ", failLogin = " + failLogin);
                         }
 
                     } else if (userName.equals("register")) {
@@ -525,18 +644,18 @@ public class Server {
 		String str = null;
 		Timer timer = new Timer();
 		timer.schedule(new MyTask(client_num, single_info), 10000, 10000);
-		while(true)
+	/*	while(true)
 		{	
 			try {
 				int ch = System.in.read();
 				if(ch-'c'==0){
-					timer.cancel();//浣跨敤杩欎釜鏂规硶閫?鍑轰换鍔?
+					timer.cancel();
 				}
 			} catch (IOException e) {
 			// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
+			}*/
 	}
 
 	static class MyTask extends java.util.TimerTask{
@@ -557,14 +676,14 @@ public class Server {
 			sf.write2fileontime(getTime() + writeRecord, writePath);
 			
 			//write to single info file
-// 			for(int i=0;i<client_num;i++){
-// 				String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
+			for(int i=0;i<client_num;i++){
+				String sinfo = getTime() + ":" + i + " have received " + count_single + " message";
 				
-// //				int i2 = i++;
-// //				System.out.println(i2);
-// 				sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
+//				int i2 = i++;
+//				System.out.println(i2);
+				sf.write2fileontime(sinfo, writePath2 + i + ".txt"); 
                 
-//             }
+            }
 
 		 }
 	}

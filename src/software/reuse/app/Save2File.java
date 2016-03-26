@@ -20,7 +20,7 @@ import software.reuse.app.Server.ClientThread;
 
 public class Save2File {
 	private static String data2write = "nothing";
-	private static String writePath = "/Users/admin/Desktop/txt2.txt";
+	private static String writePath = "C:\\txt2.txt";
 
 	
 	Save2File(){
@@ -28,9 +28,9 @@ public class Save2File {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String readPath = "/Users/admin/Desktop/txt1.txt";
-		String writePath = "/Users/admin/Desktop/txt2.txt";
-		String data = "zhende ky写出来?\nfksal\n";
+		String readPath = "txt1.txt";
+		String writePath = "txt2.txt";
+		String data = "zhende ky鍐欏嚭鏉�?\nfksal\n";
 		
 		readfile(readPath);
 		write2file(data, writePath);
@@ -42,7 +42,7 @@ public class Save2File {
 
 	}
 	
-	//读文件
+	//璇绘枃浠�
 	public static void readfile(String path1){
 		
 		File file = new File(path1);
@@ -64,20 +64,20 @@ public class Save2File {
 		}	
 	}
 	
-	//写文件
+	//鍐欐枃浠�
 	public static void write2file(String data, String path2) throws IOException{
 		File file = new File(path2);
 		file.createNewFile();
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
 		out.write(data);
-		out.flush(); // 把缓存区内容压入文件
-		out.close(); // 最后记得关闭文件
+		out.flush(); // 鎶婄紦瀛樺尯鍐呭鍘嬪叆鏂囦欢
+		out.close(); // 鏈�鍚庤寰楀叧闂枃浠�
 	}
 	
 	public static void write2fileontime(String writeData, String writefile) {
 		FileWriter fw = null;
 		try {
-		//如果文件存在，则追加内容；如果文件不存在，则创建文件
+		//濡傛灉鏂囦欢瀛樺湪锛屽垯杩藉姞鍐呭锛涘鏋滄枃浠朵笉瀛樺湪锛屽垯鍒涘缓鏂囦欢
 		File f=new File(writefile);
 		fw = new FileWriter(f, true);
 		} catch (IOException e) {
@@ -111,16 +111,16 @@ public class Save2File {
 		}
 	} 
 	
-	//定时操作
+	//瀹氭椂鎿嶄綔
 	public static void timer1() {
         Timer timer = new Timer();
         while(true)
         {
 	        timer.schedule(new TimerTask() {
 	            public void run() {
-	                System.out.println("-------设定要指定任务--------");
+	                System.out.println("-------璁惧畾瑕佹寚瀹氫换鍔�--------");
 	            }
-	        }, 3000);// 设定指定的时间time,此处为2000毫秒
+	        }, 3000);// 璁惧畾鎸囧畾鐨勬椂闂磘ime,姝ゅ涓�2000姣
         }
     }
 	
@@ -128,14 +128,14 @@ public class Save2File {
 	{
 		String str = null;
 		Timer timer = new Timer();
-		timer.schedule(new MyTask(), 2000, 2000);//在2秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+		timer.schedule(new MyTask(), 2000, 2000);//鍦�2绉掑悗鎵ц姝や换鍔�,姣忔闂撮殧2绉�,濡傛灉浼犻�掍竴涓狣ata鍙傛暟,灏卞彲浠ュ湪鏌愪釜鍥哄畾鐨勬椂闂存墽琛岃繖涓换鍔�.
 		while(true)
 		{	
-			//这个是用来停止此任务的,否则就一直循环执行此任务了
+			//杩欎釜鏄敤鏉ュ仠姝㈡浠诲姟鐨�,鍚﹀垯灏变竴鐩村惊鐜墽琛屾浠诲姟浜�
 			try {
 				int ch = System.in.read();
 				if(ch-'c'==0){
-					timer.cancel();//使用这个方法退出任务
+					timer.cancel();//浣跨敤杩欎釜鏂规硶閫�鍑轰换鍔�
 				}
 			} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -164,7 +164,7 @@ public class Save2File {
 		
 	public static String getTime(){
 		Date date = new Date();
-		DateFormat df2 = DateFormat.getDateTimeInstance();//可以精确到时分秒
+		DateFormat df2 = DateFormat.getDateTimeInstance();//鍙互绮剧‘鍒版椂鍒嗙
 		String a = df2.format(date);
 //		System.out.println(a);
 		return a;
