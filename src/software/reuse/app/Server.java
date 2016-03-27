@@ -701,7 +701,7 @@ public class Server {
     public static void timer2(int client_num, int single_info) {
         String str = null;
         Timer timer = new Timer();
-        timer.schedule(new MyTask(client_num, single_info), 10000, 10000);
+        timer.schedule(new MyTask(client_num, single_info), 10000, 60*1000);
     /*	while(true)
 		{	
 			try {

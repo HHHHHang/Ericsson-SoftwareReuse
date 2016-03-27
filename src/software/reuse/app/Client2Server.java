@@ -27,7 +27,7 @@ public class Client2Server extends Thread {
     private static int clientFailLogin = 0;
     private static Logger logger = Logger.getLogger(Client2Server.class);
     private static WriteIntoFile writeIntoFile = WriteIntoFile.getWriteIntoFile();
-    private static Map<String,Integer> mapLogin = new HashMap<String, Integer>();
+    //private static Map<String,Integer> mapLogin = new HashMap<String, Integer>();
     private static Map<String,User> userLogin = new HashMap<String, User>();
 
     //private ChatClient chatClient;
@@ -44,7 +44,7 @@ public class Client2Server extends Thread {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                System.out.println(userLogin);
+              //  System.out.println(userLogin);
                 for (String key : userLogin.keySet()){
                     User user = userLogin.get(key);
                     writeIntoFile.writeFile(key,"succeed",user.getSucceedLogin(),"fail",user.getFailLogin());

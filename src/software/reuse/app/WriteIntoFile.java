@@ -13,7 +13,7 @@ public class WriteIntoFile {
     }
     public static WriteIntoFile getWriteIntoFile(){
         if (writeIntoFile == null){
-            return new WriteIntoFile();
+            writeIntoFile = new WriteIntoFile();
         }
         return writeIntoFile;
     }
