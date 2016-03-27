@@ -7,6 +7,8 @@ public class User {
     private String username;
     private String password;
     private String ip;
+    private int succeedLogin;
+    private int failLogin;
 
     public User(String username,String password,String ip){
         this.username=username;
@@ -41,6 +43,22 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getSucceedLogin() {
+        return succeedLogin;
+    }
+
+    public void setSucceedLogin(int succeedLogin) {
+        this.succeedLogin = succeedLogin;
+    }
+
+    public int getFailLogin() {
+        return failLogin;
+    }
+
+    public void setFailLogin(int failLogin) {
+        this.failLogin = failLogin;
     }
 
     @Override

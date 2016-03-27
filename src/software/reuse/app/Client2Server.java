@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimerTask;
 
 /**
@@ -25,6 +27,8 @@ public class Client2Server extends Thread {
     private static int clientFailLogin = 0;
     private static Logger logger = Logger.getLogger(Client2Server.class);
     private static WriteIntoFile writeIntoFile = WriteIntoFile.getWriteIntoFile();
+    private static Map<String,Integer> mapLogin = new HashMap<String, Integer>();
+    private static Map<String,User> userLogin = new HashMap<String, User>();
 
     //private ChatClient chatClient;
 
@@ -40,12 +44,17 @@ public class Client2Server extends Thread {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                writeIntoFile.writeFile(username,"succeed",clientSucceedLogin,"faile",clientFailLogin);
+                System.out.println(userLogin);
+                for (String key : userLogin.keySet()){
+                    User user = userLogin.get(key);
+                    writeIntoFile.writeFile(key,"succeed",user.getSucceedLogin(),"fail",user.getFailLogin());
+                }
+               // writeIntoFile.writeFile(username,"succeed",clientSucceedLogin,"faile",clientFailLogin);
             }
         };
         java.util.Timer timer = new java.util.Timer();
         long delay = 0;
-        long intevalPeriod = 60 * 1000;
+        long intevalPeriod = 6 * 1000;
         timer.scheduleAtFixedRate(task, delay,
                 intevalPeriod);
     }
@@ -89,13 +98,35 @@ public class Client2Server extends Thread {
                 sendMessage(username + "@" + password + "@" + socket.getLocalAddress().toString());
 
                 ++clientSucceedLogin;
-                logger.error("client : user ="+username +" login successfully !"+" clientSucceedLogin = "+clientSucceedLogin);
+                if (userLogin.containsKey(username)){
+                    User user = userLogin.get(username);
+                    int succeedNum = user.getSucceedLogin()+1;
+                    user.setSucceedLogin(succeedNum);
+                    userLogin.put(username,user);
+                }else{
+                    User user = new User(username,"123","127.0.0.1");
+                    user.setSucceedLogin(1);
+                   // user.setFailLogin(0);
+                    userLogin.put(username,user);
+                }
+                logger.error("client : user ="+username +" login successfully !"+" clientSucceedLogin sum = "+clientSucceedLogin);
                 System.out.println("clientSucceedLogin" + clientSucceedLogin);
                 return true;
             } else {
                 ++clientFailLogin;
+                if (userLogin.containsKey(username)){
+                    User user = userLogin.get(username);
+                    int failNum = user.getFailLogin()+1;
+                    user.setSucceedLogin(failNum);
+                    userLogin.put(username, user);
+                }else{
+                    User user = new User(username,"123","127.0.0.1");
+                   // user.setSucceedLogin(0);
+                    user.setFailLogin(1);
+                    userLogin.put(username,user);
+                }
                 System.out.println("clientFailLogin" + clientFailLogin);
-                logger.error("client : user ="+username +" login failed !"+" clientFailLogin = "+clientFailLogin);
+                logger.error("client : user ="+username +" login failed !"+" clientFailLogin sum= "+clientFailLogin);
                 return false;
             }
         } catch (Exception e) {
