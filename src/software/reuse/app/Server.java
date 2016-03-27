@@ -39,8 +39,10 @@ public class Server {
     private JTextArea jta_history;
     private JTextField jtf_port;
     private JLabel portLabel;
-    //private JTextField jtf_msgpersec;
-    //private JTextField jtf_msgperlogin;
+    private JLabel msgpersecLabel;
+    private JLabel msgperloginLabel;
+    private JTextField jtf_msgpersec;
+    private JTextField jtf_msgperlogin;
     
     private JTextField jtf_message;
 
@@ -110,6 +112,32 @@ public class Server {
                 super.paintComponent(g);
             }
         };
+        
+        msgpersecLabel=new JLabel("Msg/Sec:");
+        msgpersecLabel.setSize(100, 30);
+        msgpersecLabel.setLocation(0,0);
+        msgpersecLabel.setFont(new java.awt.Font("Dialog", 1, 18));
+        msgpersecLabel.setForeground(Color.orange);
+        panel.add(msgpersecLabel);
+        
+        jtf_msgpersec=new JTextField("5");
+        jtf_msgpersec.setFont(new java.awt.Font("Dialog", 1, 18));
+        jtf_msgpersec.setForeground(Color.white);
+        jtf_msgpersec.setEditable(false);
+        panel.add(jtf_msgpersec);
+        
+        msgperloginLabel=new JLabel("Msg/Login:");
+        msgperloginLabel.setSize(100, 30);
+        msgperloginLabel.setLocation(0,0);
+        msgperloginLabel.setFont(new java.awt.Font("Dialog", 1, 18));
+        msgperloginLabel.setForeground(Color.orange);
+        panel.add(msgperloginLabel);
+        
+        jtf_msgperlogin=new JTextField("100");
+        jtf_msgperlogin.setFont(new java.awt.Font("Dialog", 1, 18));
+        jtf_msgperlogin.setForeground(Color.white);
+        jtf_msgperlogin.setEditable(false);
+        panel.add(jtf_msgperlogin);
 
         portLabel=new JLabel("Port:");
         portLabel.setSize(100, 30);
@@ -147,8 +175,8 @@ public class Server {
                     }
 
                     try {
-                        countmsgsec=5;
-                        //countmsgsec = Integer.parseInt(jtf_msgpersec.getText());
+                      //  countmsgsec=5;
+                        countmsgsec = Integer.parseInt(jtf_msgpersec.getText());
                     } catch (Exception e1) {
                         throw new Exception("Msgpersec must be integer!");
                     }
@@ -157,8 +185,8 @@ public class Server {
                     }
 
                     try {
-                        countmsglogin=100;
-                        //countmsglogin = Integer.parseInt(jtf_msgperlogin.getText());
+                      //  countmsglogin=10;
+                        countmsglogin = Integer.parseInt(jtf_msgperlogin.getText());
                     } catch (Exception e1) {
                         throw new Exception("Msgperlogin must be integer!");
                     }
@@ -171,8 +199,8 @@ public class Server {
                     JOptionPane.showMessageDialog(frame, "Start server successfully!");
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
-                    // jtf_msgpersec.setEnabled(false);
-                    // jtf_msgperlogin.setEnabled(false);
+                     jtf_msgpersec.setEnabled(false);
+                     jtf_msgperlogin.setEnabled(false);
                     jb_stop.setEnabled(true);
                 } catch (Exception e2) {
                     JOptionPane.showMessageDialog(frame, e2.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -198,8 +226,8 @@ public class Server {
                     jb_stop.setEnabled(false);
                     jb_start.setEnabled(true);
                     jtf_port.setEnabled(true);
-                    //   jtf_msgpersec.setEnabled(true);
-                    //    jtf_msgperlogin.setEnabled(true);
+                       jtf_msgpersec.setEnabled(true);
+                        jtf_msgperlogin.setEnabled(true);
                     jta_history.append("Stop server successfully!\n");
                     JOptionPane.showMessageDialog(frame, "Stop server successfully!\n");
                 } catch (Exception e3) {
@@ -410,12 +438,12 @@ public class Server {
         private BufferedReader reader;
         private PrintWriter writer;
         private User user;
-        int eachreceivedmsg = 0;    //��ÿ���յ�����Ϣ
-        int eachignoredmsg = 0;   //��ÿ�����Ե���Ϣ
+        int eachreceivedmsg = 0;    
+        int eachignoredmsg = 0;   
         int msgperlogin = 0;
-        Timer timer = new Timer();   //��ʱ��
+        Timer timer = new Timer();   
         
-        class MyTask1 extends TimerTask{     //��ʱ����
+        class MyTask1 extends TimerTask{     
         	FileWriter fw = null;
         	String fileadd = "c:\\server"+user.getUsername()+".txt";
         	String tempeachreceivedmsg;
@@ -424,8 +452,8 @@ public class Server {
         		try{
         				tempeachreceivedmsg = Integer.toString(eachreceivedmsg);
         				tempeachignoredmsg = Integer.toString(eachignoredmsg);
-        		    	fw = new FileWriter(fileadd,false);
-        		    	fw.write("�յ���"+tempeachreceivedmsg+"\r\n"+"���ԣ�"+tempeachignoredmsg);
+        		    	fw = new FileWriter(fileadd,true);
+        		    	fw.write("Received messages:"+tempeachreceivedmsg+"\r\n"+"Ignored messages:"+tempeachignoredmsg+"\r\n\r\n");
 
         		    	}catch(Exception e){
         		    		e.printStackTrace();
@@ -517,31 +545,31 @@ public class Server {
                     else if(message.equals("relogin")){
                     	eachreceivedmsg--;
                     	msgperlogin = 0;
-                    	jta_history.append(user.getUsername()+"���µ�¼\r\n");
+                    	jta_history.append(user.getUsername()+"Relogin\r\n");
                     }
                     else {
                     	if(msgperlogin<countmsglogin-1){
                     		if(timelist.size()<countmsgsec+1){
                         		msgperlogin++;
-                        		dispatcherMessage(message);// ת����Ϣ  
+                        		dispatcherMessage(message); 
                         	}
                         	else{
-                        		if((timelist.get(timelist.size()-1)-timelist.get(0))>10000){    //����
+                        		if((timelist.get(timelist.size()-1)-timelist.get(0))>1000){    
                         			msgperlogin++;
                         			dispatcherMessage(message);
                         		}
                         		else{
                         			 eachignoredmsg++;
-                        			 for (int q = clients.size() - 1; q >= 0; q--) {  
+                        			/* for (int q = clients.size() - 1; q >= 0; q--) {  
                         	                if(clients.get(q).getUser().getUsername()==user.getUsername()) {
-                        	                	clients.get(q).getWriter().println("�㷢��̫������Ϣ����ɣ�");
+                        	                	clients.get(q).getWriter().println("Too fast!");
                         	                	clients.get(q).getWriter().flush();
                         	                }
-                        	            }  
+                        	            }  */
                         		}
                         	}
-                    	}     //���ÿ�ε�½С��100
-                    	else{    //����100
+                    	}     
+                    	else{    
                     		for (int q = clients.size() - 1; q >= 0; q--) {  
             	                if(clients.get(q).getUser().getUsername()==user.getUsername()) {
             	                	clients.get(q).getWriter().println("Redo login");
@@ -564,7 +592,7 @@ public class Server {
             String owner = st.nextToken();
             String content = st.nextToken();
             //message = source + "said:" + content;
-            message = source + content;
+            message = source + ":" + content;
             jta_history.append(message + "\n");
             for (int i = clients.size() - 1; i >= 0; i--) {  
                 if(clients.get(i).getUser().getUsername()==user.getUsername()) {

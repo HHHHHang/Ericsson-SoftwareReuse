@@ -54,7 +54,7 @@ public class Client {
     private Map<String, User> onlineUser = new HashMap<String, User>();
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
-    private int sendmsgnum = 0;  //�ͻ��˷�����Ϣ��
+    private int sendmsgnum = 0;  
 
     private boolean isConnected = false;
 
@@ -68,8 +68,8 @@ public class Client {
         panel=new JPanel();
         back=new ImageIcon("image/bg2.jpg");
 
-        Timer timerha = new Timer();                            //��ʱ��
-        timerha.scheduleAtFixedRate(new MyTaskha(username),0,2000);
+                                 
+        
 
         nameText=new JTextArea("hello, "+username){
             private static final long serialVersionUID = -8220994963464909915L;
@@ -271,7 +271,7 @@ public class Client {
 
     public void startSendMessage(Socket socket, String username) {
         try {
-
+        	
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw = new PrintWriter(socket.getOutputStream());
             mThread = new MessageThread(br, jta_history);
@@ -280,6 +280,8 @@ public class Client {
             frame.setTitle(username);
             jta_history.append("Server has started\n");
             JOptionPane.showMessageDialog(frame, "login successfully!");
+            Timer timerha = new Timer();   
+            timerha.scheduleAtFixedRate(new MyTaskha(username),0,2000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -336,11 +338,11 @@ public class Client {
             return;
         }
         sendMessage(frame.getTitle() + "@" + "ALL" + "@" + message);
-        sendmsgnum++;     //������Ϣ��+1
+        sendmsgnum++;     
         jtf_message.setText(null);
     }
     
-    class MyTaskha extends TimerTask{     //��ʱ����
+    class MyTaskha extends TimerTask{     
     	FileWriter fw = null;
         String username;
 
@@ -350,10 +352,10 @@ public class Client {
         }
     	public void run(){
     		try{
-                    String fileadd = "D:\\"+this.username+".txt";
+                    String fileadd = "C:\\client_"+this.username+"_sends.txt";
     				tempsmn = Integer.toString(sendmsgnum);
-    		    	fw = new FileWriter(fileadd,false);
-                    fw.write(this.username+"�ѷ�����Ϣ����"+tempsmn);
+    		    	fw = new FileWriter(fileadd,true);
+                    fw.write(this.username+"sends:"+tempsmn+"\r\n");
     				if(isConnected ==  false){
     					cancel();
     				}
@@ -451,9 +453,9 @@ public class Client {
                             System.out.print("username ;" + username);
                         }
                     }else if(command.equals("Redo login")){
-                    	jta_history.append("�������µ�¼\r\n");
+                    	jta_history.append("Relogin...please wait\r\n");
                     	sendMessage("relogin");
-                    	jta_history.append("���µ�¼�ɹ�\r\n");
+                    	jta_history.append("Relogin success!\r\n");
                     }else {
                         jta_message.append(message + "\n");
                     }
