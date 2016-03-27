@@ -196,7 +196,7 @@ public class Server {
 
                     startServer(port);
                     jta_history.append("Server has started\n");
-                    JOptionPane.showMessageDialog(frame, "Start server successfully!");
+                    //JOptionPane.showMessageDialog(frame, "Start server successfully!");
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
                      jtf_msgpersec.setEnabled(false);
@@ -229,7 +229,7 @@ public class Server {
                        jtf_msgpersec.setEnabled(true);
                         jtf_msgperlogin.setEnabled(true);
                     jta_history.append("Stop server successfully!\n");
-                    JOptionPane.showMessageDialog(frame, "Stop server successfully!\n");
+                   // JOptionPane.showMessageDialog(frame, "Stop server successfully!\n");
                 } catch (Exception e3) {
                     JOptionPane.showMessageDialog(frame, "Error happens when stop server!", "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -242,7 +242,7 @@ public class Server {
         topPanel=new JScrollPane(panel);
 
         bottomPanel=new JPanel(new BorderLayout());
-        jtf_message=new JTextField("he");
+        jtf_message=new JTextField();
         jtf_message.setFont(new java.awt.Font("Dialog", 1, 15));
         jtf_message.setForeground(Color.orange);
         jtf_message.addActionListener(new ActionListener() {
@@ -256,6 +256,7 @@ public class Server {
         jb_send=new JButton("send");
         jb_send.setFont(new java.awt.Font("Dialog", 1, 18));
         jb_send.setForeground(Color.orange);
+        jb_send.setContentAreaFilled(false);
         jb_send.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 send();
@@ -707,7 +708,21 @@ public class Server {
 
                     } else if (userName.equals("register")) {
                         System.out.println("register ;" + str);
-                        userArrayList.add(new User(stringTokenizer.nextToken(), stringTokenizer.nextToken(), stringTokenizer.nextToken()));
+                        String name=stringTokenizer.nextToken();
+                        boolean exist=false;
+                        for (User user : userArrayList) {
+                            if(user.getUsername().equals(name))exist=true;
+                        }
+                        if(!exist) {
+                            userArrayList.add(new User(name, stringTokenizer.nextToken(), stringTokenizer.nextToken()));
+                        }else{
+                            writer.println("exist");
+                            writer.flush();
+                        }
+                        if(name.length()>20){
+                            writer.println("long");
+                            writer.flush();
+                        }
                         for (User user : userArrayList) {
                             System.out.println(user);
                         }

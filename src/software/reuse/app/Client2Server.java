@@ -104,8 +104,16 @@ public class Client2Server extends Thread {
     }
 
     public boolean clientRegister() {
-        pw.println("register" + "@" + username + "@" + password + "@" + socket.getLocalAddress().toString());
-        pw.flush();
+        try {
+            pw.println("register" + "@" + username + "@" + password + "@" + socket.getLocalAddress().toString());
+            pw.flush();
+            String str = br.readLine();
+            if(str.equals("exist")||str.equals("long")){
+                return false;
+            }
+        }catch (IOException e){
+
+        }
         return true;
     }
 

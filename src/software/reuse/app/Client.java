@@ -108,6 +108,7 @@ public class Client {
         jb_send=new JButton("send");
         jb_send.setFont(new java.awt.Font("Dialog", 1, 18));
         jb_send.setForeground(Color.orange);
+        jb_send.setContentAreaFilled(false);
         jb_send.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 send();
@@ -279,8 +280,8 @@ public class Client {
             isConnected = true;
             frame.setTitle(username);
             jta_history.append("Server has started\n");
-            JOptionPane.showMessageDialog(frame, "login successfully!");
-            Timer timerha = new Timer();   
+           // JOptionPane.showMessageDialog(frame, "login successfully!");
+            Timer timerha = new Timer();
             timerha.scheduleAtFixedRate(new MyTaskha(username),0,2000);
         } catch (IOException e) {
             e.printStackTrace();

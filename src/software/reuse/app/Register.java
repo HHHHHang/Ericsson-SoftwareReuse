@@ -200,7 +200,7 @@ public class Register extends JFrame {
         String password = this.pwdText.getText();
         String hostAddress = this.ipText.getText();
         String port = this.portText.getText();
-        if (password != null || !"".equals(password)) {
+        if (!password.equals("")&&!username.equals("")) {
             user = new User(username, password, hostAddress);
             Client2Server client2Server = new Client2Server(this, hostAddress, Integer.parseInt(port),
                     username, password);
@@ -209,6 +209,9 @@ public class Register extends JFrame {
                 JOptionPane.showMessageDialog(this, "register successfully,Please login !", "Warning",
                         JOptionPane.INFORMATION_MESSAGE);
 
+            }else{
+                JOptionPane.showMessageDialog(this, "register failed, username has existed or name is too long !", "Warning",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(this, "some info is null", "Warning",
