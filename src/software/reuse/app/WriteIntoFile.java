@@ -6,7 +6,7 @@ import java.io.*;
  * Created by wangdechang on 2016/3/25.
  */
 public class WriteIntoFile {
-    private static final String pre = "F:\\";
+    private static final String pre = "D:\\";
     private static WriteIntoFile writeIntoFile;
     private WriteIntoFile(){
 

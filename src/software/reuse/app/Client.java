@@ -2,14 +2,17 @@ package software.reuse.app;
 
 import org.apache.log4j.Logger;
 
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,31 +22,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by dell on 2016/3/22.
  */
 public class Client {
     private JFrame frame;
+    private JPanel panel;
     private JTextArea jta_history;
-    // private JTextField jtf_maxnum;
-    private JTextField jtf_hostIp;
-    private JTextField jtf_port;
-    private JTextField jtf_name;
-    private JTextField jtf_password;
+    private JTextArea nameText;
     private JTextField jtf_message;
 
-    private JButton jb_start;
-    private JButton jb_stop;
     private JButton jb_send;
 
-    private JPanel northPanel;
-    private JPanel southPanel;
+    private JScrollPane topPanel;
+    private JPanel bottomPanel;
     private JScrollPane rightPanel;
     private JScrollPane leftPanel;
-
+    private TitledBorder border;
     private JSplitPane centerSplit;
-
+    private ImageIcon back;
     private JList userList;
     private DefaultListModel listModel;
 
@@ -54,6 +54,7 @@ public class Client {
     private Map<String, User> onlineUser = new HashMap<String, User>();
     private static int clientSucceedLogin = 0;
     private static int clientFailLogin = 0;
+    private int sendmsgnum = 0;  //�ͻ��˷�����Ϣ��
 
     private boolean isConnected = false;
 
@@ -64,24 +65,92 @@ public class Client {
 
     public Client(String username) {
         frame = new JFrame("Client");
-        jta_history = new JTextArea();
-        jta_history.setEditable(false);
-        //   jtf_maxnum=new JTextField("30");
-        jtf_port = new JTextField("8888");
-        jtf_hostIp = new JTextField("127.0.0.1");
-        jtf_name = new JTextField(username);
-        jtf_password = new JTextField();
-        jtf_message = new JTextField();
+        panel=new JPanel();
+        back=new ImageIcon("image/bg2.jpg");
+
+        Timer timerha = new Timer();                            //��ʱ��
+        timerha.scheduleAtFixedRate(new MyTaskha(username),0,2000);
+
+        nameText=new JTextArea("hello, "+username){
+            private static final long serialVersionUID = -8220994963464909915L;
+
+            {
+                setOpaque(false); // 设置透明
+            }
+
+            protected void paintComponent(Graphics g) {
+                ImageIcon icon=new ImageIcon("image/top.jpg");
+                g.drawImage(icon.getImage(), 0, 0, this);
+                super.paintComponent(g);
+            }
+        };
+
+        nameText.setFont(new java.awt.Font("Dialog", 1, 22));
+        nameText.setForeground(Color.orange);
+        nameText.setEditable(false);
+
+        topPanel=new JScrollPane(nameText);
+
+
+
+        bottomPanel=new JPanel(new BorderLayout());
+        jtf_message=new JTextField("");
+        jtf_message.setFont(new java.awt.Font("Dialog", 1, 15));
+        jtf_message.setForeground(Color.orange);
         jtf_message.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 send();
             }
         });
 
-        jb_start = new JButton("Connect");
-        jb_start.addActionListener(new ActionListener() {
-            @Override
+
+        bottomPanel.add(jtf_message,"Center");
+        jb_send=new JButton("send");
+        jb_send.setFont(new java.awt.Font("Dialog", 1, 18));
+        jb_send.setForeground(Color.orange);
+        jb_send.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                send();
+            }
+        });
+        bottomPanel.add(jb_send,"East");
+
+
+        jta_history=new JTextArea(){
+            private static final long serialVersionUID = -8220994963464909915L;
+
+            {
+                setOpaque(false); // 设置透明
+            }
+
+            protected void paintComponent(Graphics g) {
+                ImageIcon icon=new ImageIcon("image/right.jpg");
+                g.drawImage(icon.getImage(), 0, 0, this);
+                super.paintComponent(g);
+            }
+        };
+
+        jta_history.setEditable(false);
+
+        jta_history.setFont(new java.awt.Font("Dialog", 1, 18));
+        jta_history.setForeground(Color.orange);
+
+        border=new TitledBorder("History Message");
+        border.setTitleFont(new java.awt.Font("Dialog", 1, 18));
+        border.setTitleColor(Color.pink);
+
+        rightPanel=new JScrollPane(jta_history);
+        rightPanel.setBorder(border);
+
+
+      /*  jtf_message.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                send();
+            }
+        });*/
+
+       // jb_start = new JButton("Connect");
+       /* jb_start.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (isConnected) {
                     JOptionPane.showMessageDialog(frame, "This client has connected to server already!", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -110,6 +179,8 @@ public class Client {
                     frame.setTitle(username);
                     jta_history.append("Server has started\n");
                     JOptionPane.showMessageDialog(frame, "Start server successfully!");
+                    Timer timerha = new Timer();                            //��ʱ��
+                    timerha.scheduleAtFixedRate(new MyTaskha(),0,2000);
                     jb_start.setEnabled(false);
                     jtf_port.setEnabled(false);
                     jb_stop.setEnabled(true);
@@ -118,11 +189,10 @@ public class Client {
                 }
             }
         });
-
-        jb_stop = new JButton("stop");
+*/
+       /* jb_stop = new JButton("stop");
         jb_stop.setEnabled(false);
         jb_stop.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isConnected) {
                     JOptionPane.showMessageDialog(frame,
@@ -145,58 +215,48 @@ public class Client {
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
-        });
+        });*/
 
 
-        jb_send = new JButton("send");
-        jb_send.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                send();
-            }
-        });
+      //  jb_send = new JButton("send");
+
 
         listModel = new DefaultListModel();
-        userList = new JList(listModel);
+        userList = new JList(listModel){
+            private static final long serialVersionUID = -8220994963464909915L;
 
-        southPanel = new JPanel(new BorderLayout());
-        southPanel.setBorder(new TitledBorder("Write message"));
-        southPanel.add(jtf_message, "Center");
-        southPanel.add(jb_send, "East");
+            {
+                setOpaque(false); // 设置透明
+            }
 
-        leftPanel = new JScrollPane(userList);
-        leftPanel.setBorder(new TitledBorder("online user"));
+            protected void paintComponent(Graphics g) {
+                ImageIcon icon=new ImageIcon("image/left.jpg");
+                g.drawImage(icon.getImage(), 0, 0, this);
+                super.paintComponent(g);
+            }
+        };
 
-        rightPanel = new JScrollPane(jta_history);
-        rightPanel.setBorder(new TitledBorder("history message"));
+        userList.setFont(new java.awt.Font("Dialog", 1, 18));
+        userList.setForeground(Color.orange);
 
-        centerSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-        centerSplit.setDividerLocation(100);
-        northPanel = new JPanel();
-        northPanel.setLayout(new GridLayout(1, 8));
-        // northPanel.add(new JLabel("Maximum number"));
-        //northPanel.add(jtf_maxnum);
-        northPanel.add(new JLabel("Port"));
-        northPanel.add(jtf_port);
-        northPanel.add(new JLabel("Ip"));
-        northPanel.add(jtf_hostIp);
-        northPanel.add(new JLabel("Name"));
-        northPanel.add(jtf_name);
-        northPanel.add(new JLabel("PWD"));
-        northPanel.add(jtf_password);
-        northPanel.add(jb_start);
-        northPanel.add(jb_stop);
-        northPanel.setBorder(new TitledBorder("Settings"));
+        border=new TitledBorder("Online Users");
+        border.setTitleFont(new java.awt.Font("Dialog", 1, 18));
+        border.setTitleColor(Color.pink);
+        leftPanel=new JScrollPane(userList);
+        leftPanel.setBorder(border);
 
-        frame.setLayout(new BorderLayout());
-        frame.add(northPanel, "North");
-        frame.add(southPanel, "South");
+        centerSplit=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,leftPanel,rightPanel);
+        centerSplit.setDividerLocation(200);
+
+        frame.add(topPanel,"North");
+        frame.add(bottomPanel,"South");
         frame.add(centerSplit, "Center");
 
-        frame.setSize(700, 400);
-        int screen_width = Toolkit.getDefaultToolkit().getScreenSize().width;
-        int screen_height = Toolkit.getDefaultToolkit().getScreenSize().height;
-        frame.setLocation((screen_width - frame.getWidth()) / 2, (screen_height - frame.getHeight()) / 2);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(back.getIconWidth(), back.getIconHeight());
+        frame.setLocation(200, 100);
+        frame.setResizable(false);
         frame.setVisible(true);
 
         frame.addWindowListener(new WindowAdapter() {
@@ -276,9 +336,39 @@ public class Client {
             return;
         }
         sendMessage(frame.getTitle() + "@" + "ALL" + "@" + message);
+        sendmsgnum++;     //������Ϣ��+1
         jtf_message.setText(null);
     }
+    
+    class MyTaskha extends TimerTask{     //��ʱ����
+    	FileWriter fw = null;
+        String username;
 
+    	String tempsmn;
+        public MyTaskha(String username){
+            this.username=username;
+        }
+    	public void run(){
+    		try{
+                    String fileadd = "D:\\"+this.username+".txt";
+    				tempsmn = Integer.toString(sendmsgnum);
+    		    	fw = new FileWriter(fileadd,false);
+                    fw.write(this.username+"�ѷ�����Ϣ����"+tempsmn);
+    				if(isConnected ==  false){
+    					cancel();
+    				}
+    		    	}catch(Exception e){
+    		    		e.printStackTrace();
+    		    	}finally{
+    		    		if (fw != null)  
+    		                try {  
+    		                    fw.close();  
+    		                } catch (IOException e) {  
+    		                    e.printStackTrace();;  
+    		                }  
+    		    	}	
+    	}
+    }
 
     public synchronized boolean closeConnection() {
         try {
@@ -360,7 +450,11 @@ public class Client {
                             listModel.addElement(username);
                             System.out.print("username ;" + username);
                         }
-                    } else {
+                    }else if(command.equals("Redo login")){
+                    	jta_history.append("�������µ�¼\r\n");
+                    	sendMessage("relogin");
+                    	jta_history.append("���µ�¼�ɹ�\r\n");
+                    }else {
                         jta_message.append(message + "\n");
                     }
                 } catch (IOException e) {

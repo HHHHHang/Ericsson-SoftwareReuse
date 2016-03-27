@@ -16,6 +16,7 @@ $RECYCLE.BIN/
 *.class
 *.log
 libs/
+*.xml
 
 # Windows shortcuts
 *.lnk

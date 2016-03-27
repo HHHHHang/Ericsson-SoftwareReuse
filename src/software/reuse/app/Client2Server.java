@@ -54,7 +54,7 @@ public class Client2Server extends Thread {
         };
         java.util.Timer timer = new java.util.Timer();
         long delay = 0;
-        long intevalPeriod = 6 * 1000;
+        long intevalPeriod = 60 * 1000;
         timer.scheduleAtFixedRate(task, delay,
                 intevalPeriod);
     }
@@ -66,12 +66,12 @@ public class Client2Server extends Thread {
         this.username = username;
         this.password = password;
 
-        //Á¬½Ó·þÎñÆ÷
+        //ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½
         this.connect2Server();
     }
 
 
-    // Á¬½Ó·þÎñÆ÷
+    // ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½
     private void connect2Server() {
         try {
             this.socket = new Socket(this.hostAddress, this.port);
@@ -137,15 +137,6 @@ public class Client2Server extends Thread {
     public boolean clientRegister() {
         pw.println("register" + "@" + username + "@" + password + "@" + socket.getLocalAddress().toString());
         pw.flush();
-
-        // sendMessage(username+"@"+socket.getLocalAddress().toString());
-//        try {
-//            String res = br.readLine();
-//            System.out.println("res = "+res);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         return true;
     }
 
